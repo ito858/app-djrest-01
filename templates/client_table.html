@@ -22,7 +22,7 @@
                         <th>Email</th>
                         <th>Telefono</th>
                         <th>Partita IVA</th>
-                        <!-- Add more columns as needed -->
+                        <th>Action</th>
                     </tr>
                 </thead>
                 <tbody></tbody>
@@ -30,16 +30,37 @@
             <a href="{% url 'dashboard' %}" class="btn btn-secondary mt-3">Back to Dashboard</a>
         </div>
     </div>
+
+    <!-- Bootstrap Modal for Popup -->
+    <div class="modal fade" id="clientModal" tabindex="-1" aria-labelledby="clientModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="clientModalLabel">Client Signin Info</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p><strong>Signin URL:</strong> <span id="signinUrl"></span></p>
+                    <div class="d-flex justify-content-center" id="qrcodeContainer"></div> <!-- Container for QR code -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script>
         $(document).ready(function() {
-            $('#clientTable').DataTable({
+            const table = $('#clientTable').DataTable({
                 ajax: {
                     url: '/api/core/clients/',
-                    dataSrc: 'data'  // Key for full table data
+                    dataSrc: 'data'
                 },
                 pageLength: 10,
                 lengthMenu: [10, 20, 50, 100],
@@ -51,9 +72,41 @@
                     { data: 'citta' },
                     { data: 'email' },
                     { data: 'telefono' },
-                    { data: 'partita_iva' }
-                    // Add more columns here if needed
+                    { data: 'partita_iva' },
+                    {
+                        data: 'token_registrazione',
+                        render: function(data, type, row) {
+                            return `<button class="btn btn-sm btn-info view-signin" data-token="${data}">View Signin</button>`;
+                        }
+                    }
                 ]
+            });
+
+            // Handle button click to show modal
+            $('#clientTable tbody').on('click', '.view-signin', function() {
+                const token = $(this).data('token');
+                const prefix = 'http://localhost:8001/api/';
+                const suffix = '?=signin';
+                const signinUrl = `${prefix}${token || 'no-token'}${suffix}`; // Fallback if token is null
+
+                // Update modal content
+                $('#signinUrl').text(signinUrl);
+                $('#qrcodeContainer').empty(); // Clear previous QR code
+
+                // Generate QR code in the container
+                new QRCode(document.getElementById('qrcodeContainer'), {
+                    text: signinUrl,
+                    width: 200,
+                    height: 200
+                });
+
+                // Show modal
+                $('#clientModal').modal('show');
+            });
+
+            // Clear QR code when modal is hidden to prevent overlap
+            $('#clientModal').on('hidden.bs.modal', function() {
+                $('#qrcodeContainer').empty();
             });
         });
     </script>
