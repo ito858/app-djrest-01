@@ -7,6 +7,9 @@ from .serializers import LoginSerializer
 from django.shortcuts import render, redirect
 from django.contrib.auth.models import User, Group
 from django.views import View
+from apps.core.services.client_service import add_client
+from django.contrib import messages
+
 
 class LoginView(APIView):
     permission_classes = [AllowAny]
@@ -28,10 +31,36 @@ class LoginView(APIView):
 def dashboard_view(request):
     group_name = request.user.groups.first().name if request.user.groups.exists() else "None"
     has_viewer_permission = request.user.has_perm('core.can_view_item')
+    has_editor_permission = request.user.has_perm('core.can_edit_item')
+
+    if request.method == 'POST' and has_editor_permission:
+        nome_negozio = request.POST.get('nome_negozio')
+        telefono = request.POST.get('telefono')
+        if not nome_negozio or not telefono:
+            messages.error(request, "Nome Negozio and Telefono are required.")
+        else:
+            data = {
+                'nome_negozio': nome_negozio,
+                'telefono': telefono,
+                'tipo_negozio': request.POST.get('tipo_negozio', ''),
+                'indirizzo': request.POST.get('indirizzo', ''),
+                'citta': request.POST.get('citta', ''),
+                'provincia': request.POST.get('provincia', ''),
+                'cap': request.POST.get('cap', ''),
+                'email': request.POST.get('email', ''),
+                'sito_web': request.POST.get('sito_web', ''),
+                'partita_iva': request.POST.get('partita_iva', None),
+            }
+            add_client(data)
+            messages.success(request, "Client added successfully!")
+        return redirect('dashboard')
+
     return render(request, 'dashboard.html', {
         'group_name': group_name,
-        'has_viewer_permission': has_viewer_permission
+        'has_viewer_permission': has_viewer_permission,
+        'has_editor_permission': has_editor_permission,
     })
+
 
 
 
