@@ -14,12 +14,17 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
+from django.shortcuts import render
+from apps.users.views import SignupView, dashboard_view
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('api/users/', include('apps.users.urls')),
-    path('signin/', lambda request: render(request, 'signin.html'), name='signin'),
-    path('signup/', SignupView.as_view(), name='signup'),
+    path("admin/", admin.site.urls),
+    path("api/users/", include("apps.users.urls")),
+    path('api/core/', include('apps.core.api.urls')),  # Ensure this includes core URLs
+    path("signin/", lambda request: render(request, "signin.html"), name="signin"),
+    path("signup/", SignupView.as_view(), name="signup"),
+    path('', dashboard_view, name='dashboard'),  # Dashboard as root
 ]
