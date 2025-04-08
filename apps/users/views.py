@@ -28,6 +28,7 @@ class LoginView(APIView):
             return Response({"error": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
 def dashboard_view(request):
     group_name = request.user.groups.first().name if request.user.groups.exists() else "None"
     has_viewer_permission = request.user.has_perm('core.can_view_item')
@@ -55,12 +56,19 @@ def dashboard_view(request):
             messages.success(request, "Client added successfully!")
         return redirect('dashboard')
 
-    return render(request, 'dashboard.html', {
+    if has_editor_permission:
+        template = 'dashboard-editor.html'
+    elif has_viewer_permission:
+        template = 'dashboard-viewer.html'
+    else:
+        template = 'dashboard-viewer.html'  # Default for no permissions
+
+    return render(request, template, {
         'group_name': group_name,
         'has_viewer_permission': has_viewer_permission,
         'has_editor_permission': has_editor_permission,
     })
-
+
 
 
 
