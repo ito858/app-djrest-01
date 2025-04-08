@@ -13,11 +13,13 @@ def generate_token_registrazione() -> str:
     return str(uuid.uuid4())[:10]  # Temporary UUID, truncated to 32 chars
 
 def create_client_table(dbnome: str):
-    """Create a table with the given dbnome (modular placeholder)."""
+    """Create a table with the given dbnome using VIP schema."""
+    VIP.__table__.name = dbnome  # Dynamically set table name
     with Session(engine) as session:
-        # Placeholder: Add actual table creation logic later
-        session.execute(text(f"CREATE TABLE IF NOT EXISTS {dbnome} (id INTEGER PRIMARY KEY)"))
+        VIP.__table__.create(bind=engine, checkfirst=True)  # Create table if not exists
         session.commit()
+
+
 
 def add_client(data: dict) -> Cliente:
     """Add a client to the cliente table."""

@@ -5,4 +5,5 @@ from django.shortcuts import render
 urlpatterns = [
     path('clients/', views.ClientListView.as_view(), name='client_list'),
     path('clients/table/', lambda request: render(request, 'client_table.html'), name='client_table'),  # Updated path
+    path('vip-membership/<int:id_negozio>/', views.VipMembershipView.as_view(), name='vip_membership'),
 ]

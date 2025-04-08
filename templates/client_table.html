@@ -16,10 +16,7 @@
                     <tr>
                         <th>ID</th>
                         <th>Nome Negozio</th>
-                        <th>Tipo Negozio</th>
-                        <th>Indirizzo</th>
                         <th>Città</th>
-                        <th>Email</th>
                         <th>Telefono</th>
                         <th>Partita IVA</th>
                         <th>Action</th>
@@ -41,7 +38,7 @@
                 </div>
                 <div class="modal-body">
                     <p><strong>Signin URL:</strong> <span id="signinUrl"></span></p>
-                    <div class="d-flex justify-content-center" id="qrcodeContainer"></div> <!-- Container for QR code -->
+                    <div class="d-flex justify-content-center" id="qrcodeContainer"></div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -67,44 +64,36 @@
                 columns: [
                     { data: 'id_negozio' },
                     { data: 'nome_negozio' },
-                    { data: 'tipo_negozio' },
-                    { data: 'indirizzo' },
                     { data: 'citta' },
-                    { data: 'email' },
                     { data: 'telefono' },
                     { data: 'partita_iva' },
                     {
-                        data: 'token_registrazione',
+                        data: 'id_negozio',
                         render: function(data, type, row) {
-                            return `<button class="btn btn-sm btn-info view-signin" data-token="${data}">View Signin</button>`;
+                            return `<a href="/api/core/vip-membership/${data}/" class="btn btn-sm btn-warning">Manage VIP</a>`;
                         }
                     }
                 ]
             });
 
-            // Handle button click to show modal
             $('#clientTable tbody').on('click', '.view-signin', function() {
                 const token = $(this).data('token');
                 const prefix = 'http://localhost:8001/api/';
                 const suffix = '?=signin';
-                const signinUrl = `${prefix}${token || 'no-token'}${suffix}`; // Fallback if token is null
+                const signinUrl = `${prefix}${token || 'no-token'}${suffix}`;
 
-                // Update modal content
                 $('#signinUrl').text(signinUrl);
-                $('#qrcodeContainer').empty(); // Clear previous QR code
+                $('#qrcodeContainer').empty();
 
-                // Generate QR code in the container
                 new QRCode(document.getElementById('qrcodeContainer'), {
                     text: signinUrl,
                     width: 200,
                     height: 200
                 });
 
-                // Show modal
                 $('#clientModal').modal('show');
             });
 
-            // Clear QR code when modal is hidden to prevent overlap
             $('#clientModal').on('hidden.bs.modal', function() {
                 $('#qrcodeContainer').empty();
             });
