@@ -68,7 +68,7 @@ def dashboard_view(request):
         'has_viewer_permission': has_viewer_permission,
         'has_editor_permission': has_editor_permission,
     })
-
+
 
 
 
