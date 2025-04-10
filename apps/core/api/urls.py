@@ -8,4 +8,5 @@ urlpatterns = [
     path('vip-membership/<str:token_registrazione>/', views.VipMembershipView.as_view(), name='vip_membership'),
     path('upload_vip_file/<str:token_registrazione>/', views.UploadVipFileView.as_view(), name='upload_vip_file'),
     path('vip_counts/<str:token_registrazione>/', views.VipCountsView.as_view(), name='vip_counts'),  # Fixed typo in name
+    path('register/<str:token_registrazione>/', views.CustomerRegistrationView.as_view(), name='customer_registration'),
 ]

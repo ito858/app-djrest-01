@@ -1,5 +1,4 @@
 from sqlalchemy.orm import Session
-from sqlalchemy.sql import text
 from apps.core.models.cliente import Cliente
 from apps.core.models.vip import create_vip_table
 from sqlalchemy import MetaData
