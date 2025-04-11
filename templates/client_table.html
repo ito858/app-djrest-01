@@ -5,53 +5,33 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Client Table</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css">
 </head>
 <body class="bg-light">
     <div class="container mt-5">
-        <div class="card shadow p-4">
-            <h2 class="text-center mb-4">Client Table</h2>
-            <table id="clientTable" class="table table-striped">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Nome Negozio</th>
-                        <th>Città</th>
-                        <th>Telefono</th>
-                        <th>Partita IVA</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
-            <a href="{% url 'dashboard' %}" class="btn btn-secondary mt-3">Back to Dashboard</a>
-        </div>
+        <h2 class="text-center mb-4">Client List</h2>
+        {% if has_editor_permission %}
+            <a href="/api/core/add_client/" class="btn btn-primary mb-3">Add New Client</a>
+        {% endif %}
+        <a href="/" class="btn btn-secondary mb-3">Back to Dashboard</a>
+        <table id="clientTable" class="table table-striped">
+            <thead>
+                <tr>
+                    <th>ID Negozio</th>
+                    <th>Nome Negozio</th>
+                    <th>Città</th>
+                    <th>Telefono</th>
+                    <th>Partita IVA</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
     </div>
-
-    <!-- Bootstrap Modal for Popup -->
-    <div class="modal fade" id="clientModal" tabindex="-1" aria-labelledby="clientModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="clientModalLabel">Client Signin Info</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <p><strong>Signin URL:</strong> <span id="signinUrl"></span></p>
-                    <div class="d-flex justify-content-center" id="qrcodeContainer"></div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
     <script>
         $(document).ready(function() {
             const table = $('#clientTable').DataTable({
@@ -59,8 +39,6 @@
                     url: '/api/core/clients/',
                     dataSrc: 'data'
                 },
-                pageLength: 10,
-                lengthMenu: [10, 20, 50, 100],
                 columns: [
                     { data: 'id_negozio' },
                     { data: 'nome_negozio' },
@@ -68,34 +46,36 @@
                     { data: 'telefono' },
                     { data: 'partita_iva' },
                     {
-                        data: 'token_registrazione',
+                        data: null,
                         render: function(data, type, row) {
-                            return `<a href="/api/core/vip-membership/${data}/" class="btn btn-sm btn-warning">Manage VIP</a>`;
+                            return `
+                                <a href="/api/core/vip-membership/${row.token_registrazione}/" class="btn btn-sm btn-warning">Manage VIP</a>
+                                <button class="btn btn-sm btn-danger regenerate-token" data-id="${row.id_negozio}">New Token</button>
+                            `;
                         }
                     }
-                ]
+                ],
+                error: function(xhr, error, thrown) {
+                    console.error('DataTable Error:', xhr.responseText);
+                }
             });
 
-            $('#clientTable tbody').on('click', '.view-signin', function() {
-                const token = $(this).data('token');
-                const prefix = 'http://localhost:8001/api/';
-                const suffix = '?=signin';
-                const signinUrl = `${prefix}${token || 'no-token'}${suffix}`;
-
-                $('#signinUrl').text(signinUrl);
-                $('#qrcodeContainer').empty();
-
-                new QRCode(document.getElementById('qrcodeContainer'), {
-                    text: signinUrl,
-                    width: 200,
-                    height: 200
-                });
-
-                $('#clientModal').modal('show');
-            });
-
-            $('#clientModal').on('hidden.bs.modal', function() {
-                $('#qrcodeContainer').empty();
+            $('#clientTable tbody').on('click', '.regenerate-token', function() {
+                const idNegozio = $(this).data('id');
+                if (confirm('Generate a new token for this client?')) {
+                    $.ajax({
+                        url: `/api/core/regenerate_token/${idNegozio}/`,
+                        type: 'POST',
+                        headers: {'X-CSRFToken': $('input[name=csrfmiddlewaretoken]').val()},
+                        success: function(response) {
+                            alert(`New token: ${response.token_registrazione}`);
+                            table.ajax.reload();
+                        },
+                        error: function(xhr) {
+                            alert('Error: ' + xhr.responseJSON.error);
+                        }
+                    });
+                }
             });
         });
     </script>

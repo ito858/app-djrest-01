@@ -19,6 +19,8 @@ from django.contrib import admin
 from django.urls import path, include
 from django.shortcuts import render
 from apps.users.views import SignupView, dashboard_view
+from django.contrib.auth import views as auth_views
+from django.views.generic import TemplateView
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -27,4 +29,6 @@ urlpatterns = [
     path("signin/", lambda request: render(request, "signin.html"), name="signin"),
     path("signup/", SignupView.as_view(), name="signup"),
     path('', dashboard_view, name='dashboard'),  # Dashboard as root
+    path('logout/', auth_views.LogoutView.as_view(next_page='/logout-confirm/'), name='logout'),
+    path('logout-confirm/', TemplateView.as_view(template_name='logout_confirm.html'), name='logout_confirm'),
 ]

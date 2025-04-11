@@ -18,16 +18,19 @@
 
             <hr class="my-4">
 
-            <p>To add new records, please upload the configuration file here:</p>
+            <!-- Modified Upload Section -->
+            <p>To add new VIP records, upload a CSV or Excel file with a single column named <strong>"code"</strong>. Other fields will be set to empty, and stato will be 1 (preassigned).</p>
             <form method="post" enctype="multipart/form-data" id="uploadForm">
                 {% csrf_token %}
                 <div class="mb-3">
-                    <label for="vipFile" class="form-label">Upload File (CSV, XLS, XLSX):</label>
+                    <label for="vipFile" class="form-label">Upload File (CSV/XLS/XLSX with 'code' column):</label>
                     <input type="file" class="form-control" id="vipFile" name="vipFile" accept=".csv, .xls, .xlsx" required>
                 </div>
                 <button type="submit" class="btn btn-primary">Upload and Add Records</button>
             </form>
             <div id="uploadStatus"></div>
+            <!-- End Modified Upload Section -->
+
             <p><strong>dbnome (Upload):</strong> <span id="dbnomeUploadDisplay">{{ dbnome }}</span></p>
             <p><strong>dbnome (Counts):</strong> <span id="dbnomeCountsDisplay">{{ dbnome }}</span></p>
         </div>
@@ -44,7 +47,7 @@
             height: 200
         });
 
-        const tokenRegistrazione = "{{ token_registrazione }}";  // Use token_registrazione
+        const tokenRegistrazione = "{{ token_registrazione }}";
         $('#uploadForm').attr('action', `/api/core/upload_vip_file/${tokenRegistrazione}/`);
 
         $('#uploadForm').submit(function(event) {
@@ -58,7 +61,13 @@
                 processData: false,
                 contentType: false,
                 success: function(response) {
-                    $('#uploadStatus').html('<div class="alert alert-success">' + response.message + '</div>');
+                    $('#uploadStatus').html(`
+                        <div class="alert alert-success">
+                            ${response.message}<br>
+                            VIP Members: ${response.vip_count}<br>
+                            Remaining Records: ${response.remaining_count}
+                        </div>
+                    `);
                     $('#vipCount').text(response.vip_count);
                     $('#remainingCount').text(response.remaining_count);
                     fetchVipCounts();
@@ -86,6 +95,6 @@
 
         fetchVipCounts();
     });
-</script>
+    </script>
 </body>
 </html>

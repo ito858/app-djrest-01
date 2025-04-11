@@ -1,105 +1,46 @@
-from sqlalchemy import Column, BigInteger, String, SmallInteger, Integer, Float, DateTime, BINARY, Table, MetaData
+from sqlalchemy import Column, Integer, String, DateTime, SmallInteger, Table
 from sqlalchemy.sql import func
 from .base import Base
 
 class VIP(Base):
-    __tablename__ = "vip"  # Base name, will be overridden dynamically
+    __tablename__ = "vip"
 
-    IDvip = Column(BigInteger, primary_key=True)
-    code = Column(String(13), nullable=True, index=True)
-    nascita = Column(String(255), nullable=True)
-    cellulare = Column(String(255), nullable=True)
-    sms = Column(SmallInteger, default=0)
-    Punti = Column(Integer, nullable=True)
-    Sconto = Column(Integer, nullable=True)
-    Ck = Column(String(255), nullable=True)
-    idata = Column(DateTime, server_default=func.now())
-    ioperatore = Column(Integer, nullable=True)
-    inegozio = Column(Integer, nullable=True)
-    P_cs = Column(Integer, default=0)
-    P_ldata = Column(String(255), nullable=True)
-    P_importo = Column(Float, default=0.00)
-    Nome = Column(String(255), nullable=True)
-    Indirizzo = Column(String(255), nullable=True)
-    Cap = Column(String(255), nullable=True)
-    Citta = Column(String(255), nullable=True)
-    Prov = Column(String(255), nullable=True)
-    CodiceFiscale = Column(String(255), nullable=True)
-    PartitaIva = Column(String(255), nullable=True)
-    Email = Column(String(255), nullable=True)
+    IDvip = Column(Integer, primary_key=True, autoincrement=True)
+    code = Column(String(13), nullable=False, default='', unique=True, index=True)
+    Nome = Column(String(50))
+    cognome = Column(String(50), default='')
+    cellulare = Column(String(30), default='', index=True)
+    nascita = Column(String(30), default='')
+    Indirizzo = Column(String(255), default='')
+    Cap = Column(String(40), default='')
+    Citta = Column(String(50), default='')
+    Prov = Column(String(20), default='')
+    Email = Column(String(100), default='')
     sesso = Column(Integer, default=0)
-    VIPanno = Column(Integer, default=0)
-    maps = Column(String(255), nullable=True)
-    VIPscadenza = Column(String(255), nullable=True)
-    Blocco = Column(Integer, default=0)
-    cognome = Column(String(255), default='')
-    SerBlocco = Column(Integer, default=0)
-    SerBloccoBz = Column(String(255), nullable=True)
-    omail = Column(SmallInteger, default=0)
-    oposte = Column(SmallInteger, default=0)
-    msg = Column(Integer, default=0)
-    msgstr = Column(String(255), nullable=True)
-    utime = Column(String(255), nullable=True)
-    upc = Column(String(255), nullable=True)
-    uzt = Column(Integer, default=0)
-    un = Column(String(255), nullable=True)
-    lotteria = Column(String(20), nullable=True)
-    statoanno = Column(String(10), nullable=True)
-    img = Column(BINARY, nullable=True)
-    n = Column(String(255), nullable=True)
-    SCOscadenza = Column(String(20), nullable=True)
-    stato = Column(SmallInteger, default=0)
+    idata = Column(DateTime, server_default=func.now())
+    rdata = Column(DateTime, default='')
+    stato = Column(SmallInteger, default=0, index=True)
 
     def __repr__(self):
         return f"VIP({self.Nome} {self.cognome} - {self.code})"
 
-def create_vip_table(dbnome: str, metadata: MetaData) -> Table:
-    """Create a VIP table schema dynamically for the given dbnome."""
+def create_vip_table(dbnome: str, metadata) -> Table:
     return Table(
         dbnome, metadata,
-        Column('IDvip', BigInteger, primary_key=True),
-        Column('code', String(13), nullable=True, index=True),
-        Column('nascita', String(255), nullable=True),
-        Column('cellulare', String(255), nullable=True),
-        Column('sms', SmallInteger, default=0),
-        Column('Punti', Integer, nullable=True),
-        Column('Sconto', Integer, nullable=True),
-        Column('Ck', String(255), nullable=True),
-        Column('idata', DateTime, server_default=func.now()),
-        Column('ioperatore', Integer, nullable=True),
-        Column('inegozio', Integer, nullable=True),
-        Column('P_cs', Integer, default=0),
-        Column('P_ldata', String(255), nullable=True),
-        Column('P_importo', Float, default=0.00),
-        Column('Nome', String(255), nullable=True),
-        Column('Indirizzo', String(255), nullable=True),
-        Column('Cap', String(255), nullable=True),
-        Column('Citta', String(255), nullable=True),
-        Column('Prov', String(255), nullable=True),
-        Column('CodiceFiscale', String(255), nullable=True),
-        Column('PartitaIva', String(255), nullable=True),
-        Column('Email', String(255), nullable=True),
+        Column('IDvip', Integer, primary_key=True, autoincrement=True),
+        Column('code', String(13), nullable=False, default='', unique=True, index=True),
+        Column('Nome', String(50)),
+        Column('cognome', String(50), default=''),
+        Column('cellulare', String(30), default='', index=True),
+        Column('nascita', String(30), default=''),
+        Column('Indirizzo', String(255), default=''),
+        Column('Cap', String(40), default=''),
+        Column('Citta', String(50), default=''),
+        Column('Prov', String(20), default=''),
+        Column('Email', String(100), default=''),
         Column('sesso', Integer, default=0),
-        Column('VIPanno', Integer, default=0),
-        Column('maps', String(255), nullable=True),
-        Column('VIPscadenza', String(255), nullable=True),
-        Column('Blocco', Integer, default=0),
-        Column('cognome', String(255), default=''),
-        Column('SerBlocco', Integer, default=0),
-        Column('SerBloccoBz', String(255), nullable=True),
-        Column('omail', SmallInteger, default=0),
-        Column('oposte', SmallInteger, default=0),
-        Column('msg', Integer, default=0),
-        Column('msgstr', String(255), nullable=True),
-        Column('utime', String(255), nullable=True),
-        Column('upc', String(255), nullable=True),
-        Column('uzt', Integer, default=0),
-        Column('un', String(255), nullable=True),
-        Column('lotteria', String(20), nullable=True),
-        Column('statoanno', String(10), nullable=True),
-        Column('img', BINARY, nullable=True),
-        Column('n', String(255), nullable=True),
-        Column('SCOscadenza', String(20), nullable=True),
-        Column('stato', SmallInteger, default=0),
+        Column('idata', DateTime, server_default=func.now()),
+        Column('rdata', DateTime, default=''),
+        Column('stato', SmallInteger, default=0, index=True),
         extend_existing=True
     )
