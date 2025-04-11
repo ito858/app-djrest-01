@@ -10,6 +10,7 @@ CLIENTE_FIELDS = {
     'mandatory': {
         'nome_negozio': str,
         'telefono': str,
+        'partita_iva': str,
     },
     'optional': {
         'tipo_negozio': str,
@@ -18,7 +19,6 @@ CLIENTE_FIELDS = {
         'provincia': str,
         'cap': str,
         'email': str,
-        'partita_iva': str,
     }
 }
 
